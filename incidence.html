@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<title>incidence. incidence 0.0.1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="">
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/bootstrap-responsive.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
+<link href="css/staticdocs.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  </head>
+
+  <body>
+    <div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="#">incidence 0.0.1</a>
+      <div class="nav">
+        <ul class="nav">
+          <li><a href="index.html"><i class="icon-home icon-white"></i> Index</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <div class="container">
+      <header>
+        
+      </header>
+      
+      <h1>Compute incidence from a numerical vector of onsets, representing
+days.</h1>
+
+<div class="row">
+  <div class="span8">
+    <h2>Usage</h2>
+    <pre><div>incidence(onset, ...)</div></pre>
+    
+    <h2>Arguments</h2>
+    <dl>
+      <dt>onset</dt>
+      <dd>An numerical vector, each element of which
+corresponds to a case.  The vector does not need to be sorted,
+but must be positive?</dd>
+      <dt>...</dt>
+      <dd>Additional arguments passed to other methods (none are used).</dd>
+    </dl>
+    
+    <div class="Value">
+      <h2>Value</h2>
+
+      <p><dl>
+A named list with 2 members (days [first day per interval] and
+  NoOfCases [count of incidents during the respective interval])
+</dl></p>
+  
+    </div>
+
+    <div class="Description">
+      <h2>Description</h2>
+
+      <p>This function takes date of symptom onset, per case, as input which
+is in the format of number of days after a reference date. Each row
+represents a case, and the reference day could be the day of the
+oubreak, if known. 0 would suggest the case developed symptoms on
+the reference date, 1 would mean the day after the reference date,
+etc. The number of incidences per interval (in days) are then
+computed, for which the default length of the interval is 1
+day. The output is a named list with a member for the interval
+(Days - same format as the input of onset) and a member for the
+number of incidences in that interval. The interval is denoted by
+the first day in the interval, i.e. if the list of the interval is
+0,3,6,... then the interval is of length 3 and days 0, 1 and 2 are
+in the first interval, days 3, 4 and 5 are in the seconde, etc.</p>
+  
+    </div>
+    
+    <h2 id="examples">Examples</h2>
+    <pre class="examples"><div class='input'>incidence(c(1, 5, 8, 3, 7, 2, 4, 6, 9, 2))
+</div>
+<div class='output'>&lt;incidence object&gt;
+  - 10 cases
+  - Spanning 8 days
+</div>
+<div class='input'>incidence(c(1, 5, 8, 3, 7, 2, 4, 6, 9, 2), 2)
+</div>
+<div class='output'>&lt;incidence object&gt;
+  - 10 cases
+  - Spanning 8 days
+</div></pre>
+  </div>
+  <div class="span4">
+    <!-- <ul>
+      <li>incidence</li>
+    </ul>
+    <ul>
+      
+    </ul> -->
+      
+        
+  </div>
+</div>
+      
+      <footer>
+      <p class="pull-right"><a href="#">Back to top</a></p>
+<p>Built by <a href="https://github.com/hadley/staticdocs">staticdocs</a>. Styled with <a href="http://twitter.github.com/bootstrap">bootstrap</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>
