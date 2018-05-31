@@ -158,16 +158,16 @@ incidence.integer <- function(dates, interval = 1L, groups = NULL,
   groups <- check_groups(groups, dates, na_as_group)
 
   ## first date
-  first_date <- min(dates, na.rm = TRUE)
-  ## if (is.null(first_date)) {
-  ##   first_date <- min(dates, na.rm = TRUE)
-  ## }
-  ## if (is.numeric(first_date)) {
-  ##   first_date <- as.integer(first_date)
-  ## }
-  ## if (!is.integer(first_date)) {
-  ##   stop("first_date not provided as an integer")
-  ## }
+  ## first_date <- min(dates, na.rm = TRUE)
+  if (is.null(first_date)) {
+    first_date <- min(dates, na.rm = TRUE)
+  }
+  if (is.numeric(first_date)) {
+    first_date <- as.integer(first_date)
+  }
+  if (!is.integer(first_date)) {
+    stop("first_date not provided as an integer")
+  }
 
   ## last date
   if (is.null(last_date)) {
@@ -181,11 +181,6 @@ incidence.integer <- function(dates, interval = 1L, groups = NULL,
   }
 
   interval <- as.integer(round(interval))
-  if ("iso_week" %in% names(dots)) {
-    if (interval == 7L && dots$iso_week == TRUE) {
-      first_date <- 0L
-    }
-  }
 
   ## function to compute counts of dates with defined breaks
   count.dates <- function(dates, breaks){
@@ -286,6 +281,7 @@ incidence.Date <- function(dates, interval = 1L, iso_week = TRUE,
   }
 
   dates_int <- as.integer(dates - first_date)
+  first_date_int <- 0L
   last_date_int <- as.integer(last_date - first_date)
 
   out <- incidence.integer(dates_int,
