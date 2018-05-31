@@ -21,7 +21,7 @@ incidence(dates, interval = 1L, ...)
 \method{incidence}{numeric}(dates, interval = 1L, ...)
 
 \method{incidence}{Date}(dates, interval = 1L, iso_week = TRUE,
-  last_date = NULL, ...)
+  first_date = NULL, last_date = NULL, ...)
 
 \method{incidence}{POSIXt}(dates, interval = 1L, ...)
 
