@@ -13,10 +13,10 @@
 incidence(dates, interval = 1L, ...)
 
 \method{incidence}{integer}(dates, interval = 1L, groups = NULL,
-  na_as_group = TRUE, last_date = NULL, ...)
+  na_as_group = TRUE, first_date = NULL, last_date = NULL, ...)
 
 \method{incidence}{default}(dates, interval = 1L, groups = NULL,
-  na_as_group = TRUE, last_date = NULL, ...)
+  na_as_group = TRUE, first_date = NULL, last_date = NULL, ...)
 
 \method{incidence}{numeric}(dates, interval = 1L, ...)
 
@@ -43,8 +43,12 @@ incidence should be computed separately.}
 \item{na_as_group}{A logical value indicating if missing group (NA) should be
 treated as a separate group.}
 
+\item{first_date}{The first date to be included in the produced epicurve. If
+\code{NULL} (default), the first date will be the earliest one recorded in
+\code{dates}.}
+
 \item{last_date}{The last date to be included in the produced epicurve. If
-\code{NULL} (default), the last date will be the most recent provided in
+\code{NULL} (default), the last date will be the most recent recorded in
 \code{dates}.}
 
 \item{iso_week}{A logical value indicating if dates of the weekly incidence
