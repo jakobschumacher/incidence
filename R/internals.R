@@ -143,3 +143,13 @@ make_iso_weeks_breaks <- function(dates, n = 5) {
        labels = sub("-[1-7]+$", "", iso_weeks)
        )
 }
+
+
+
+
+## Find the first date of the isoweek of a given date
+find_isoweek_day1 <- function(x) {
+  first_isoweek <- ISOweek::date2ISOweek(x)
+  substr(first_isoweek, 10, 10) <- "1"
+  ISOweek::ISOweek2date(first_isoweek)
+}

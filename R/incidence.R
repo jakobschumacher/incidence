@@ -158,15 +158,16 @@ incidence.integer <- function(dates, interval = 1L, groups = NULL,
   groups <- check_groups(groups, dates, na_as_group)
 
   ## first date
-  if (is.null(first_date)) {
-    first_date <- min(dates, na.rm = TRUE)
-  }
-  if (is.numeric(first_date)) {
-    first_date <- as.integer(first_date)
-  }
-  if (!is.integer(first_date)) {
-    stop("first_date not provided as an integer")
-  }
+  first_date <- min(dates, na.rm = TRUE)
+  ## if (is.null(first_date)) {
+  ##   first_date <- min(dates, na.rm = TRUE)
+  ## }
+  ## if (is.numeric(first_date)) {
+  ##   first_date <- as.integer(first_date)
+  ## }
+  ## if (!is.integer(first_date)) {
+  ##   stop("first_date not provided as an integer")
+  ## }
 
   ## last date
   if (is.null(last_date)) {
@@ -253,12 +254,22 @@ incidence.numeric <- function(dates, interval = 1L, ...) {
 #'   to be TRUE.
 
 incidence.Date <- function(dates, interval = 1L, iso_week = TRUE,
-                           last_date = NULL, ...) {
+                           first_date = NULL, last_date = NULL, ...) {
   ## make sure input can be used
   dates <- check_dates(dates)
   stopifnot(is.logical(iso_week))
 
-  first_date <- min(dates, na.rm = TRUE)
+  ## first date
+  if (is.null(first_date)) {
+    first_date <- min(dates, na.rm = TRUE)
+  } else {
+    if (!inherits(first_date, "Date")) {
+      stop("first_date is not a Date object")
+    }
+  }
+  first_date <- check_dates(first_date)
+
+  ## last date
   if (is.null(last_date)) {
     last_date <- max(dates, na.rm = TRUE)
   } else {
@@ -266,12 +277,12 @@ incidence.Date <- function(dates, interval = 1L, iso_week = TRUE,
       stop("last_date is not a Date object")
     }
   }
+  last_date <- check_dates(last_date)
+
   interval <- as.integer(round(interval))
 
   if (interval == 7L && iso_week) {
-    first_isoweek <- ISOweek::date2ISOweek(first_date)
-    substr(first_isoweek, 10, 10) <- "1"
-    first_date <- ISOweek::ISOweek2date(first_isoweek)
+    first_date <- find_isoweek_day1(first_date)
   }
 
   dates_int <- as.integer(dates - first_date)
@@ -280,6 +291,7 @@ incidence.Date <- function(dates, interval = 1L, iso_week = TRUE,
   out <- incidence.integer(dates_int,
                            interval = interval,
                            iso_week = iso_week,
+                           first_date = first_date_int,
                            last_date = last_date_int,
                            ...)
 
