@@ -16,6 +16,9 @@ check_dates <- function(x, error_on_NA = FALSE, ...) {
     stop("dates is NULL")
   }
 
+  if (inherits(x, "Date")) { # avoid rounding error in Date objects
+    x <- as.Date(as.character(x))
+  }
   if (is.character(x)) {
     x <- as.Date(x, ...)
   }
