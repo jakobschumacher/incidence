@@ -180,6 +180,10 @@ incidence.integer <- function(dates, interval = 1L, groups = NULL,
     stop("last_date not provided as an integer")
   }
 
+  ## exclude data outside [first_date;last_date]
+  to_keep <- (dates >= first_date) & (dates <= last_date)
+  dates <- dates[to_keep]
+
   interval <- as.integer(round(interval))
 
   ## function to compute counts of dates with defined breaks
