@@ -147,7 +147,33 @@ i$interval
 diff(i$dates)
 ```
 
+### `get_interval()` Accessor
 
+The safest way of accessing the interval for an incidence object is through the
+`get_interval()` accessor:
+
+```{r, get_interval}
+get_interval(i)
+```
+
+
+### Date intervals
+
+When the incidence object contains `Date` or `POSIXt` class vectors for the dates, then it's possible to define date-relevant intervals such as "week", "month", or "year":
+
+```{r, interval-date}
+i.date <- incidence(as.Date("2016-01-15") + dat, interval = "month")
+i.date
+get_dates(i.date)
+```
+
+However, because months and years don't contain a uniform number of days, the 
+intervals must be defined for each bin; the `get_interval()` accessor does this
+for us:
+
+```{r, get_interval2}
+get_interval(i.date)
+```
 
 
 
