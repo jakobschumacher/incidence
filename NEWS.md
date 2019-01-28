@@ -1,14 +1,113 @@
-incidence 1.4.1.99
+incidence 1.5.4.99 unreleased
+============================
+
+
+incidence 1.5.4 (2019-01-15)
+============================
+
+### BUG FIX
+
+* `incidence()` now returns an error when supplied a character vector that is
+  not formatted as (yyyy-mm-dd).
+  (See https://github.com/reconhub/incidence/issues/88)
+* `fit()` now returns correct coefficients when dates is POSIXt by converting to
+  Date. (See https://github.com/reconhub/incidence/issues/91)
+* `plot.incidence()` now plots in UTC by default for POSIXt incidence objects.
+  this prevents a bug where different time zones would cause a shift in the bars
+  (See https://github.com/reconhub/incidence/issues/99).
+
+### MISC
+
+* A test that randomly failed on CRAN has been fixed.
+  (See https://github.com/reconhub/incidence/issues/95).
+* Plotting tests have been updated for new version of vdiffr
+  (See https://github.com/reconhub/incidence/issues/96).
+* POSIXct incidence are first passed through POSIXlt when initialized.
+* A more informative error message is generated for non ISO 8601 formatted 
+  `first_date` and `last_date` parameters.
+
+incidence 1.5.3 (2018-12-07)
+============================
+
+### BUG FIX
+
+* `plot.incidence()` will now respect single groups.
+  (See https://github.com/reconhub/incidence/issues/84)
+* `as.data.frame.incidence()` will now respect single groups.
+  (See https://github.com/reconhub/incidence/issues/84)
+
+### MISC
+
+* `demo("incidence-demo" package = "incidence")` has been updated to show use of
+  custom colors.
+
+incidence 1.5.2 (2018-11-30)
+============================
+
+### BUG FIX
+
+* `print.incidence()` will now print isoweeks even if the `$interval` element is
+  "week".
+
+### MISC
+
+* `subset.incidence()` will now give a more informative error message when the
+  user specifies a group that does not exist. 
+* `demo('incidence-demo', package = 'incidence')` now shows plotting with 
+  `show_cases = TRUE`.
+* In the the case where a date is accidentally mis-typed leading to a gross
+  mis-calculation of the date range (i.e. 2018 is mis-typed as 3018), a warning
+  will be issued. The default threshold is set at 18262 days (50 years), but the
+  user can define their own threshold by setting the `incidence.max.days` option
+
+incidence 1.5.1 (2018-11-14)
+============================
+
+### BUG FIX
+
+* Two bugs regarding the ordering of groups when the user specifies a factor/
+  column order have been fixed. This affects `plot.incidence()`, `incidence()`,
+  and `as.data.frame.incidence()` For details, see
+  https://github.com/reconhub/incidence/issues/79
+
+incidence 1.5.0 (2018-11-01)
 ============================
 
 ### NEW FUNCTIONS
 
-* `group_names()` allows the user to retrieve and set the group names
-* `n_groups()` returns the number of groups.
+* `group_names()` allows the user to retrieve and set the group names.
+* `get_timespan()` returns the `$timespan` element.
+* `get_n()` returns the `$n` element.
+* `dim()`, `nrow()`, and `ncol()` are now available for incidence objects,
+  returning the dimensions of the number of bins and the number of groups.
+
+### NEW FEATURES
+
+* A new argument to `plot()` called `show_cases` has been added to draw borders
+  around individual cases for EPIET-style curves.
+  See https://github.com/reconhub/incidence/pull/72 for details.
+
+### DOCUMENTATION UPDATES
+
+* An example of EPIET-style bars for small data sets has been added to the 
+  plot customisation vignette by @jakobschumacher.
+  See https://github.com/reconhub/incidence/pull/68 for details.
+* The incidence class vignette has been updated to use the available accessors.
 
 ### BUG FIX
 
-* `estimate_peak()` no longer failes with integer dates
+* `estimate_peak()` no longer fails with integer dates
+* `incidence()` no longer fails when providing both group information and a
+  `first_date` or `last_date` parameter that is inside the bounds of the
+  observed dates. Thanks to @mfaber for reporting this bug. 
+  See https://github.com/reconhub/incidence/issues/70 for details.
+
+### MISC
+
+* code has been spread out into a more logical file structure where the 
+  `internal_checks.R` file has been split into the relative components.
+* A message is now printed if missing observations are present when
+  creating the incidence object.
 
 incidence 1.4.1 (2018-08-24)
 ============================

@@ -1,3 +1,4 @@
+^CRAN-RELEASE$
 ^cran-comments\.md$
 ^.*\.Rproj$
 ^\.Rproj\.user$
@@ -20,3 +21,4 @@ README.html
 ^appveyor\.yml$
 bug_reports/*
 ^revdep/
+^_pkgdown.yml$

@@ -8,7 +8,7 @@
 #'
 #' @importFrom graphics plot
 #'
-#' @author Thibaut Jombart \email{thibautjombart@@gmail.com} 
+#' @author Thibaut Jombart \email{thibautjombart@@gmail.com}
 #'   Zhian N. Kamvar \email{zkamvar@@gmail.com}
 #'
 #' @seealso The [incidence()] function to generate the 'incidence'
@@ -47,12 +47,17 @@
 #' marks are in ISO 8601 week format yyyy-Www when plotting ISO week-based weekly
 #' incidence; defaults to be TRUE.
 #'
+#' @param show_cases if `TRUE` (default: `FALSE`), then each observation will be
+#' colored by a border. The border defaults to a white border unless specified
+#' otherwise. This is normally used outbreaks with a small number of cases.
+#' Note: this can only be used if `stack = TRUE`
+#'
 #' @param n_breaks the ideal number of breaks to be used for the x-axis
 #'   labeling
 #'
 #' @examples
 #'
-#' if(require(outbreaks)) { withAutoprint({
+#' if(require(outbreaks) && require(ggplot2)) { withAutoprint({
 #'   onset <- ebola_sim$linelist$date_of_onset
 #'
 #'   ## daily incidence
@@ -73,6 +78,15 @@
 #'   plot(inc.week.gender)
 #'   plot(inc.week.gender, labels_iso = FALSE)
 #'
+#'   ## show individual cases at the beginning of the epidemic
+#'   inc.week.8 <- subset(inc.week.gender, to = "2014-06-01")
+#'   plot(inc.week.8, show_cases = TRUE, border = "black")
+#'
+#'   ## customize plot with ggplot2
+#'   plot(inc.week.8, show_cases = TRUE, border = "black") +
+#'     theme_classic(base_size = 16) +
+#'     theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+#'
 #'   ## adding fit
 #'   fit <- fit_optim_split(inc.week.gender)$fit
 #'   plot(inc.week.gender, fit = fit)
@@ -83,12 +97,14 @@ plot.incidence <- function(x, ..., fit = NULL, stack = is.null(fit),
                            color = "black", border = NA, col_pal = incidence_pal1,
                            alpha = .7, xlab = "", ylab = NULL,
                            labels_iso = !is.null(x$isoweeks),
+                           show_cases = FALSE,
                            n_breaks = 6) {
   stopifnot(is.logical(labels_iso))
 
   ## extract data in suitable format for ggplot2
   df <- as.data.frame(x, long = TRUE)
   n.groups <- ncol(x$counts)
+  gnames   <- group_names(x)
 
   ## Use custom labels for usual time intervals
   if (is.null(ylab)) {
@@ -141,12 +157,13 @@ plot.incidence <- function(x, ..., fit = NULL, stack = is.null(fit),
   ## Important note: it seems safest to specify the aes() as part of the geom,
   ## not in ggplot(), as it interacts badly with some other geoms like
   ## geom_ribbon - used e.g. in projections::add_projections().
-
+  x_axis <- "dates + (interval.days/2)"
+  y_axis <- "counts"
   out <- ggplot2::ggplot(df) +
     ggplot2::geom_bar(ggplot2::aes_string(
-                        x = "dates + (interval.days/2)",
-                        y = "counts"
-                      ),
+                        x = x_axis,
+                        y = y_axis
+                        ),
                       stat = "identity",
                       width = df$interval.days,
                       position = stack.txt,
@@ -154,7 +171,27 @@ plot.incidence <- function(x, ..., fit = NULL, stack = is.null(fit),
                       alpha = alpha) +
     ggplot2::labs(x = xlab, y = ylab)
 
+  ## Handle show_cases here
 
+  if (show_cases && stack) {
+    squaredf <- df[rep(seq.int(nrow(df)), df$counts), ]
+    squaredf$counts <- 1
+    squares <- ggplot2::geom_bar(ggplot2::aes_string(
+                                   x = x_axis,
+                                   y = y_axis
+                                   ),
+                                 color = if (is.na(border)) "white" else border,
+                                 stat = "identity",
+                                 fill  = NA,
+                                 position = "stack",
+                                 data = squaredf,
+                                 width = squaredf$interval.days
+                                 )
+    out <- out + squares
+  }
+  if (show_cases && !stack) {
+    message("the argument `show_cases` requires the argument `stack = TRUE`")
+  }
   ## Handle fit objects here; 'fit' can be either an 'incidence_fit' object,
   ## or a list of these. In the case of a list, we add geoms one after the
   ## other.
@@ -189,12 +226,31 @@ plot.incidence <- function(x, ..., fit = NULL, stack = is.null(fit),
   ## by default, the palette is used, but the user can manually specify the
   ## colors.
 
-  if (ncol(x$counts) < 2) {
+  if (n.groups < 2 && is.null(gnames)) {
     out <- out + ggplot2::aes(fill = 'a') +
       ggplot2::scale_fill_manual(values = color, guide = FALSE)
   } else {
+    if (!is.null(names(color))) {
+      tmp     <- color[gnames] 
+      matched <- names(color) %in% names(tmp)
+      if (!all(matched)) {
+        removed <- paste(names(color)[!matched], 
+                         color[!matched],
+                         sep = '" = "',
+                         collapse = '", "')
+        message(sprintf("%d colors were not used: \"%s\"", sum(!matched), removed))
+      }
+      color <- tmp
+    }
+                                 
     ## find group colors
-    if (length(color) != ncol(x$counts)) {
+    if (length(color) != n.groups) {
+      msg <- "The number of colors (%d) did not match the number of groups (%d)"
+      msg <- paste0(msg, ".\nUsing `col_pal` instead.")
+      default_color <- length(color) == 1L && color == "black"
+      if (!default_color) {
+        message(sprintf(msg, length(color), n.groups))
+      }
       group.colors <- col_pal(n.groups)
     } else {
       group.colors <- color
@@ -240,9 +296,10 @@ plot.incidence <- function(x, ..., fit = NULL, stack = is.null(fit),
       out <- out + ggplot2::scale_x_date(breaks      = breaks,
                                          date_breaks = db
                                         )
-    } else if (inherits(x$dates, "POSIXct")) {
+    } else if (inherits(x$dates, "POSIXt")) {
       out <- out + ggplot2::scale_x_datetime(breaks      = breaks,
-                                             date_breaks = db
+                                             date_breaks = db,
+                                             timezone    = "UTC"
                                             )
     } else {
       out <- out + ggplot2::scale_x_continuous(breaks = breaks)
@@ -274,6 +331,18 @@ add_incidence_fit <- function(p, x, col_pal = incidence_pal1){
     return(out)
   }
   df <- get_info(x, "pred")
+
+  # In the case that the incidence object is of the type POSIXt, the data from
+  # the fit object must be presented as POSIXt or ggplot2 will throw a fit.
+
+  if (inherits(p$data$dates, "POSIXt")) {
+    # I add half a day here because any fractional days (0.5) will be thrown out
+    # on conversion and I'm not quite sure why that is
+    df$dates <- as.POSIXlt(df$dates) + 43200 # adding half a day
+    if (inherits(p$data$dates, "POSIXct")) {
+      df$dates <- as.POSIXct(df$dates)
+    } 
+  }
 
   out <- suppressMessages(
     p + ggplot2::geom_line(

@@ -5,13 +5,13 @@ print.incidence <- function(x, ...) {
   cat("<incidence object>\n")
   cat(sprintf("[%d cases from days %s to %s]\n",
               sum(x$n), min(x$dates), max(x$dates)))
-  if (x$interval == 7L && "isoweeks" %in% names(x)) {
+  if ("isoweeks" %in% names(x)) {
     cat(sprintf("[%d cases from ISO weeks %s to %s]\n",
                 sum(x$n), head(x$isoweeks, 1), tail(x$isoweeks, 1)))
   }
-  if (ncol(x$counts) > 1L) {
+  if (!is.null(group_names(x))) {
     groups.txt <- paste(group_names(x), collapse = ", ")
-    cat(sprintf("[%d groups: %s]\n", n_groups(x), groups.txt))
+    cat(sprintf("[%d groups: %s]\n", ncol(x), groups.txt))
   }
   cat(sprintf("\n$counts: matrix with %d rows and %d columns\n",
               nrow(x$counts), ncol(x$counts)))
